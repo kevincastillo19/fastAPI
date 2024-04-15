@@ -7,6 +7,7 @@ from config.database import Session
 from models.movie import Movie as MovieModel
 from middlewares.jwt_bearer import JWTBearer
 from services.movie import MovieService
+from schemas.movie import Movie
 
 movie_router = APIRouter()
 NAMESPACE_TAG = 'movie'
@@ -31,14 +32,6 @@ movies = [
     }
 ]
 
-class Movie(BaseModel):
-    id: Optional[int] = None
-    title: str = Field(default="Película", max_length=15)
-    overview: Optional[str] = Field(default="Resumen", max_length=100, min_length=5)
-    year: int = Field(le=2024, default=2024)
-    rating: Optional[float] = Field(ge=0)
-    category: str = Field(max_length='15')
-
 @movie_router.get('/movies', tags=[NAMESPACE_TAG], response_model=List[Movie], dependencies=[Depends(JWTBearer())])
 def get_movies(category: Optional[str] = Query(default=None), year: Optional[int]=Query(default=None)) -> List[Movie]:
     db = Session()
@@ -59,35 +52,21 @@ def get_movie(id_movie: int = Path(ge=1, le=20)):
     dependencies=[Depends(JWTBearer())]
 )
 def create_movie(movie: Movie):
-    db = Session()    
-    new_movie = MovieModel(**movie.__dict__)
-    db.add(new_movie)
-    db.commit()
-    movies = db.query(MovieModel).all()
-    response = jsonable_encoder(movies)
-    return JSONResponse(status_code=201, content=response)
+    db = Session()
+    new_movie = MovieService(db).create_movie(movie)    
+    return JSONResponse(status_code=201, content={'id': new_movie.id})
 
 @movie_router.put('/movies/{id_movie}', tags=[NAMESPACE_TAG])
 def update_movie(id_movie: int, movie: Movie):
     db = Session()
-    _movie = db.query(MovieModel).filter(MovieModel.id == id_movie).first()
-    if not _movie:
-        raise HTTPException(404, "No existe")
-    for attr, value in movie.__dict__.items():
-        if value and attr in _movie.__dict__:
-            _movie.__setattr__(attr, value)
-    db.add(_movie)
-    db.commit()
-    db.close()
-    return JSONResponse(status_code=200, content={'success':True})
+    movie_updated = MovieService(db).update_movie(id_movie, movie)
+    return JSONResponse(status_code=200, content={'success':True, 'id':movie_updated.id})
 
 @movie_router.delete('/movies/{id}', tags=[NAMESPACE_TAG])
 def delete_movie(id_movie: int):
     db = Session()
-    movie = db.query(MovieModel).filter_by(id=id_movie).first()
+    movie = MovieService(db).delete_movie(id_movie)
     if not movie:
-        raise HTTPException(404, "No existe")
-    db.delete(movie)
-    db.commit()
-    movies = jsonable_encoder(db.query(MovieModel).all())
-    return JSONResponse(content=movies)
+        raise HTTPException(404, "No existe")    
+    response = jsonable_encoder(movie)
+    return JSONResponse(content=response)
