@@ -1,11 +1,21 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from typing import Union
+from typing import Optional
+from pydantic import BaseModel, Field
 
 app = FastAPI()
 app.title = "FastAPI"
 app.version = "0.1.0"
 NAMESPACE_TAG = 'movie'
+
+class Movie(BaseModel):
+    id: Optional[int] = None
+    title: str = Field(default="Película", max_length=15)
+    overview: Optional[str] = Field(default="Resumen", max_length=100, min_length=10)
+    year: int = Field(le=2024, default=2024)
+    rating: Optional[float]
+    category: str
+    
 
 movies = [
     {
@@ -33,7 +43,7 @@ def message():
     )
 
 @app.get('/movies', tags=[NAMESPACE_TAG])
-def get_movies(category: Union[str, None] = None, year: Union[int, None]=None):
+def get_movies(category: Optional[str] = None, year: Optional[int]=None):
     movies_filtered = movies
     if category:
         movies_filtered = [movie for movie in movies if movie.get('category').lower() == category.lower()]
@@ -47,43 +57,14 @@ def get_movie(id_movie: int):
     return [movie for movie in movies if movie['id'] == id_movie]
 
 @app.post('/movies', tags=[NAMESPACE_TAG])
-def create_movie(
-        id: int = Body(),
-        title: str = Body(),
-        overview: str = Body(),
-        year: int = Body(),
-        rating: int = Body(),
-        category: str = Body()
-    ):
-    movies.append({
-        'id': id,
-        'title': title,
-        'overview': overview,
-        'year': year,
-        'rating': rating,
-        'category': category
-    })
-    return movies.sort()
+def create_movie(movie: Movie):
+    movies.append(movie)
+    return movies
 
 @app.put('/movies/{id_movie}', tags=[NAMESPACE_TAG])
-def update_movie(
-        id_movie: int,
-        title: str = Body(),
-        overview: str = Body(),
-        year: int = Body(),
-        rating: int = Body(),
-        category: str = Body()
-    ):
-    print(movies)
+def update_movie(id_movie: int, movie: Movie):
     movie = [m for m in movies if m.get('id') == id_movie]
     movie_index = movies.index(movie[0])
-    movie = {
-        'title': title,
-        'overview': overview,
-        'year': year,
-        'rating': rating,
-        'category': category
-    }
     movies.__setitem__(movie_index, movie)
     return movies
 
