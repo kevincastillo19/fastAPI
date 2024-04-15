@@ -8,20 +8,19 @@ from jwt_manager import create_token, validate_token
 from fastapi.security import HTTPBearer
 from config.database import Session, engine, Base
 from models.movie import Movie as MovieModel
+from middlewares.error_handler import ErrorHandler
+from middlewares.jwt_bearer import JWTBearer
 
 app = FastAPI()
 app.title = "FastAPI"
 app.version = "0.1.0"
 NAMESPACE_TAG = 'movie'
 
+#middelwares
+app.add_middleware(ErrorHandler)
+
 Base.metadata.create_all(bind=engine)
 
-class JWTBearer(HTTPBearer):
-    async def __call__(self, request: Request):
-        auth = await super().__call__(request)
-        data = validate_token(auth.credentials)
-        if data['email'] != 'correo@correo.com':
-            raise HTTPException(403,"Credenciales no válidas", data)
 class User(BaseModel):
     email: str
     password: str
