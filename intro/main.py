@@ -7,7 +7,7 @@ from fastapi.encoders import jsonable_encoder
 from jwt_manager import create_token, validate_token
 from fastapi.security import HTTPBearer
 from config.database import Session, engine, Base
-from models.movie import Movie
+from models.movie import Movie as MovieModel
 
 app = FastAPI()
 app.title = "FastAPI"
@@ -61,17 +61,22 @@ def message():
 
 @app.get('/movies', tags=[NAMESPACE_TAG], response_model=List[Movie], dependencies=[Depends(JWTBearer())])
 def get_movies(category: Optional[str] = Query(default=None), year: Optional[int]=Query(default=None)) -> List[Movie]:
-    movies_filtered = movies
-    print(category, year)
+    db = Session()
+    movies = db.query(MovieModel)
     if category:
-        movies_filtered = [movie for movie in movies if movie.get('category').lower() == category.lower()]
+        movies = movies.filter_by(category=category)
     if year:
-        movies_filtered = [movie for movie in movies if movie.get('year') == str(year)]
-    return JSONResponse(content=movies_filtered)
+        movies = movies.filter_by(year=year)
+    response = jsonable_encoder(movies.all())
+    return JSONResponse(content=response)
 
 @app.get('/movies/{id_movie}', tags=[NAMESPACE_TAG])
 def get_movie(id_movie: int = Path(ge=1, le=20)):
-    return JSONResponse(content=[movie for movie in movies if movie['id'] == id_movie])
+    db = Session()
+    movies = db.query(MovieModel).filter_by(id=id_movie).first()
+    if movies:
+        return JSONResponse(content=[jsonable_encoder(movies)])
+    raise HTTPException(404, "No encontrado")
 
 @app.post('/movies',
     tags=[NAMESPACE_TAG],
@@ -79,22 +84,38 @@ def get_movie(id_movie: int = Path(ge=1, le=20)):
     dependencies=[Depends(JWTBearer())]
 )
 def create_movie(movie: Movie):
-    movies.append(movie)
+    db = Session()    
+    new_movie = MovieModel(**movie.__dict__)
+    db.add(new_movie)
+    db.commit()
+    movies = db.query(MovieModel).all()
     response = jsonable_encoder(movies)
     return JSONResponse(status_code=201, content=response)
 
 @app.put('/movies/{id_movie}', tags=[NAMESPACE_TAG])
 def update_movie(id_movie: int, movie: Movie):
-    movie = [m for m in movies if m.get('id') == id_movie]
-    movie_index = movies.index(movie[0])
-    movies.__setitem__(movie_index, movie)
-    return JSONResponse(status_code=200, content=movie)
+    db = Session()
+    _movie = db.query(MovieModel).filter(MovieModel.id == id_movie).first()
+    if not _movie:
+        raise HTTPException(404, "No existe")
+    for attr, value in movie.__dict__.items():
+        if value and attr in _movie.__dict__:
+            _movie.__setattr__(attr, value)
+    db.add(_movie)
+    db.commit()
+    db.close()
+    return JSONResponse(status_code=200, content={'success':True})
 
 @app.delete('/movies/{id}', tags=[NAMESPACE_TAG])
 def delete_movie(id_movie: int):
-    movie = [m for m in movies if m.get('id') == id_movie]
-    movies.remove(movie[0])
-    JSONResponse(content=movies)
+    db = Session()
+    movie = db.query(MovieModel).filter_by(id=id_movie).first()
+    if not movie:
+        raise HTTPException(404, "No existe")
+    db.delete(movie)
+    db.commit()
+    movies = jsonable_encoder(db.query(MovieModel).all())
+    return JSONResponse(content=movies)
 
 # LOGIN
 @app.post('/login', tags=['auth'])
