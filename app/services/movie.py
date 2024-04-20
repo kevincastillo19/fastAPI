@@ -1,6 +1,6 @@
-from models.movie import Movie as MovieModel
+from app.models.movie import Movie as MovieModel
 from typing import List
-from schemas.movie import Movie
+from app.schemas.movie import Movie
 class MovieService():
     
     def __init__(self, db) -> None:

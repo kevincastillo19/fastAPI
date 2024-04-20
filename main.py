@@ -1,15 +1,14 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel 
-from config.database import  engine, Base
-from middlewares.error_handler import ErrorHandler
-from routers.movie import movie_router
-from routers.user import user_router
+from app.config.database import  engine, Base
+from app.middlewares.error_handler import ErrorHandler
+from app.routers.movie import movie_router
+from app.routers.user import user_router
 
 app = FastAPI()
 app.title = "FastAPI"
 app.version = "0.1.0"
-
 
 #middelwares
 app.add_middleware(ErrorHandler)

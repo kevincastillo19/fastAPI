@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-from jwt_manager import create_token
-from schemas.user import User
+from app.jwt_manager import create_token
+from app.schemas.user import User
 user_router = APIRouter()
 
 # LOGIN

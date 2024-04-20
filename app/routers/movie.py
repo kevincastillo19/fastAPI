@@ -3,11 +3,11 @@ from fastapi.responses import JSONResponse
 from typing import Optional, List
 from pydantic import BaseModel, Field
 from fastapi.encoders import jsonable_encoder
-from config.database import Session
-from models.movie import Movie as MovieModel
-from middlewares.jwt_bearer import JWTBearer
-from services.movie import MovieService
-from schemas.movie import Movie
+from app.config.database import Session
+from app.models.movie import Movie as MovieModel
+from app.middlewares.jwt_bearer import JWTBearer
+from app.services.movie import MovieService
+from app.schemas.movie import Movie
 
 movie_router = APIRouter()
 NAMESPACE_TAG = 'movie'
