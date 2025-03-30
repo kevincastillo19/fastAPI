@@ -41,36 +41,38 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 The project is organized as follows:
 
+```bash
 fastAPI/
 ├── app/
 │ ├── config/ # Configuration files (e.g., database setup)
-│ │ ├── [**init**.py](http://_vscodecontentref_/1)
-│ │ └── [database.py](http://_vscodecontentref_/2)
+│ │ ├── __init__.py
+│ │ └── database.py
 │ ├── middlewares/ # Custom middlewares (e.g., error handling, JWT authentication)
-│ │ ├── [**init**.py](http://_vscodecontentref_/3)
-│ │ ├── [error_handler.py](http://_vscodecontentref_/4)
-│ │ └── [jwt_bearer.py](http://_vscodecontentref_/5)
+│ │ ├── __init__.py
+│ │ ├── error_handler.py
+│ │ └── jwt_bearer.py
 │ ├── models/ # SQLAlchemy models
-│ │ ├── [**init**.py](http://_vscodecontentref_/6)
-│ │ └── [movie.py](http://_vscodecontentref_/7)
+│ │ ├── __init__.py
+│ │ └── movie.py
 │ ├── routers/ # API route definitions
-│ │ ├── [**init**.py](http://_vscodecontentref_/8)
-│ │ ├── [movie.py](http://_vscodecontentref_/9)
-│ │ └── [user.py](http://_vscodecontentref_/10)
+│ │ ├── __init__.py
+│ │ ├── movie.py
+│ │ └── user.py
 │ ├── schemas/ # Pydantic schemas for data validation
-│ │ ├── [**init**.py](http://_vscodecontentref_/11)
-│ │ ├── [movie.py](http://_vscodecontentref_/12)
-│ │ └── [user.py](http://_vscodecontentref_/13)
+│ │ ├── __init__.py
+│ │ ├── movie.py
+│ │ └── user.py
 │ ├── services/ # Business logic and service classes
-│ │ ├── [**init**.py](http://_vscodecontentref_/14)
-│ │ └── [movie.py](http://_vscodecontentref_/15)
+│ │ ├── __init__.py
+│ │ └── movie.py
 │ └── tests/ # Unit tests
-│ ├── [**init**.py](http://_vscodecontentref_/16)
-│ └── [test_movie.py](http://_vscodecontentref_/17)
-├── [main.py](http://_vscodecontentref_/18) # Application entry point
-├── [requirements.txt](http://_vscodecontentref_/19) # Python dependencies
+│ ├── __init__.py
+│ └── test_movie.py
+├── main.py # Application entry point
+├── requirements.txt # Python dependencies
 ├── Dockerfile # Docker configuration
 ├── Makefile # Makefile for common commands
+```
 
 ### Docker Setup
 
