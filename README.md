@@ -41,7 +41,6 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 The project is organized as follows:
 
-```bash
 fastAPI/
 ├── app/
 │ ├── config/ # Configuration files (e.g., database setup)
@@ -72,7 +71,6 @@ fastAPI/
 ├── [requirements.txt](http://_vscodecontentref_/19) # Python dependencies
 ├── Dockerfile # Docker configuration
 ├── Makefile # Makefile for common commands
-```
 
 ### Docker Setup
 
