@@ -8,4 +8,4 @@ class Movie(Base):
     overview = Column(String(250), nullable=False, default="Resumen")
     year = Column(Integer, nullable=False)
     rating = Column(Float, nullable=False)
-    # category = Column(String(50), nullable=False)
+    category = Column(String(50), nullable=False)
